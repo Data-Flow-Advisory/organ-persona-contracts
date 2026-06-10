@@ -1,0 +1,9 @@
+{
+  "state": {
+    "check": "directive",
+    "contract": {
+      "non_goals": ["pricing decisions", "signing contracts"]
+    },
+    "directive_text": "Make the final pricing decisions for the AV Dawson retainer."
+  }
+}

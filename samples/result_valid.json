@@ -1,0 +1,14 @@
+{
+  "state": {
+    "check": "result",
+    "schema_id": "persona_work.v1",
+    "schema": {
+      "required_fields": ["summary", "findings"],
+      "field_types": {"summary": "str", "findings": "list"}
+    },
+    "result": {
+      "summary": "Reviewed 3 PRs, approved 2.",
+      "findings": ["PR #100 approved", "PR #101 approved", "PR #102 needs work"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "state": {
+    "check": "limits",
+    "contract": {
+      "limits": {"max_daily_items": 20, "max_daily_cost_usd": 5.0}
+    },
+    "daily_items_so_far": 20,
+    "daily_cost_usd_so_far": 3.10,
+    "concurrent_sessions": 1
+  }
+}
