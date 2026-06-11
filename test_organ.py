@@ -504,5 +504,55 @@ class TestSamplesConform:
                 assert isinstance(out["output"]["error"], dict)
 
 
+# ---------------------------------------------------------------------------
+# Connection standard — ports.json conformance (orchestrator/CONNECTORS.md)
+# ---------------------------------------------------------------------------
+
+from ports_check import check_ports, _TrackingState
+
+
+class TestPorts:
+    def test_ports_json_parses_and_conforms(self):
+        # check_ports() raises AssertionError on any conformance failure:
+        # ports.json parses, every type is in the vocabulary, and decide()
+        # reads each declared input / writes each declared output.
+        summary = check_ports()
+        assert summary["inputs"] == ["schema", "result", "contract"]
+        assert summary["outputs"] == ["valid", "error"]
+        assert summary["samples_checked"] >= 1
+
+    def test_declared_types_all_in_vocab(self):
+        ports = json.load(open(os.path.join(os.path.dirname(__file__), "ports.json")))
+        vocab = json.load(open(os.path.join(os.path.dirname(__file__), "types.json")))
+        names = set(vocab["types"])
+        for side in ("inputs", "outputs"):
+            for p in ports[side]:
+                assert p["type"] in names, f"{p['type']} missing from types.json"
+
+    def test_all_inputs_optional_for_op_dispatch(self):
+        ports = json.load(open(os.path.join(os.path.dirname(__file__), "ports.json")))
+        # Op-dispatched on state['check']; no input is present in every mode.
+        for p in ports["inputs"]:
+            assert p["required"] is False
+
+    def test_tracking_state_witnesses_reads(self):
+        # The read check must witness a real access, not a textual match.
+        ts = _TrackingState({"check": "result", "schema": {"required_fields": []},
+                             "result": {}, "schema_id": "s"})
+        decide(ts)
+        assert "schema" in ts.touched
+        assert "result" in ts.touched
+
+    def test_outputs_written_on_every_dispatch(self):
+        # Each declared output name appears under output for every mode.
+        for state in (
+            {"check": "result", "schema_id": "s", "schema": {"required_fields": []}, "result": {}},
+            {"check": "directive", "contract": {}, "directive_text": "x"},
+            {"check": "limits", "contract": {}},
+        ):
+            body = decide(state)["output"]
+            assert "valid" in body and "error" in body
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))

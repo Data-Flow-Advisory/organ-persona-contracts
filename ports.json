@@ -1,0 +1,12 @@
+{
+  "_README": "Connection-standard ports manifest for organ-persona-contracts. `name` is the literal key decide() reads under `state` (inputs) / writes under `output` (outputs); `type` is a name from types.json (the stud size). See orchestrator/CONNECTORS.md. This organ is op-dispatched on `state['check']` (result|directive|limits), so no single input is present in every mode — every input is `required: false` and the organ fail-opens (accepts, low confidence) when one is absent. Excluded as non-wire fields: `check` (dispatch discriminator / control), `schema_id` (scalar registry lookup handle — the caller resolves it into the structured `schema` port), `directive_text` (scalar string), and `daily_items_so_far` / `daily_cost_usd_so_far` / `concurrent_sessions` (scalar live-telemetry counters). The connection standard wires structured artifacts between organs; scalar control/lookup/telemetry are invocation parameters, not typed sockets.",
+  "inputs": [
+    {"name": "schema", "type": "OutputSchemaSpec", "required": false},
+    {"name": "result", "type": "WorkResultPayload", "required": false},
+    {"name": "contract", "type": "PersonaContract", "required": false}
+  ],
+  "outputs": [
+    {"name": "valid", "type": "ContractVerdict"},
+    {"name": "error", "type": "ContractVerdict"}
+  ]
+}
