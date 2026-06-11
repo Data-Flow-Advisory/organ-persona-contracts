@@ -446,5 +446,63 @@ class TestCLI:
             assert set(out.keys()) == {"output", "rationale", "self_metric"}
 
 
+# Pin each committed sample to its expected verdict + decision_path. The
+# round-trip test above only checks output *shape* — a logic regression that
+# flipped a verdict (e.g. stopped matching non_goals) would still produce a
+# well-shaped output and slip through. This locks the actual decision so the
+# conformance Action's shadow-run reflects intended behaviour, not just a
+# parseable envelope. (Lesson: pin the action, not just the shape.)
+_SAMPLE_EXPECTATIONS = {
+    "result_valid.json": {"valid": True, "decision_path": "schema_ok"},
+    "result_schema_violation.json": {
+        "valid": False,
+        "decision_path": "schema_violation",
+    },
+    "directive_conflicts_non_goal.json": {
+        "valid": False,
+        "decision_path": "non_goal_match",
+    },
+    "limits_exceeded.json": {
+        "valid": False,
+        "decision_path": "max_daily_items",
+    },
+}
+
+
+class TestSamplesConform:
+    def test_every_sample_is_pinned(self):
+        """Each committed sample has an expectation (so a new sample can't
+        be added without also pinning its verdict)."""
+        here = os.path.dirname(__file__)
+        sdir = os.path.join(here, "samples")
+        names = {f for f in os.listdir(sdir) if f.endswith(".json")}
+        assert names == set(_SAMPLE_EXPECTATIONS), (
+            "every sample must be pinned in _SAMPLE_EXPECTATIONS; "
+            f"samples={sorted(names)} pinned={sorted(_SAMPLE_EXPECTATIONS)}"
+        )
+
+    def test_samples_produce_expected_verdict(self):
+        here = os.path.dirname(__file__)
+        sdir = os.path.join(here, "samples")
+        for name, expected in _SAMPLE_EXPECTATIONS.items():
+            payload = json.loads(open(os.path.join(sdir, name)).read())
+            out = decide(payload["state"], payload.get("context"))
+            assert out["output"]["valid"] is expected["valid"], (
+                f"{name}: valid {out['output']['valid']} != "
+                f"{expected['valid']}"
+            )
+            assert out["self_metric"]["decision_path"] == expected[
+                "decision_path"
+            ], (
+                f"{name}: decision_path {out['self_metric']['decision_path']}"
+                f" != {expected['decision_path']}"
+            )
+            # Rejections must carry an error body; acceptances must not.
+            if expected["valid"]:
+                assert out["output"]["error"] is None
+            else:
+                assert isinstance(out["output"]["error"], dict)
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
