@@ -1,0 +1,12 @@
+{
+  "$comment": "VENDORED connector type vocabulary. The canonical source is the orchestrator's types.json (Data-Flow-Advisory/orchestrator @ feat/drift-gate). That repo/branch is not currently reachable (404), so this is a local copy of the standard JSON-primitive vocabulary used by the connection standard. When the orchestrator vocabulary becomes reachable, reconcile this file against it and drop any types this organ does not use.",
+  "types": {
+    "string": "A JSON string.",
+    "integer": "A JSON integer.",
+    "number": "A JSON number (integer or float).",
+    "boolean": "A JSON boolean.",
+    "object": "A JSON object (key/value map).",
+    "array": "A JSON array.",
+    "any": "Any JSON value (string, number, boolean, object, array, or null). PROPOSED ADDITION — not part of the JSON-primitive vocabulary; used here for the polymorphic `result` input port. See the PR description; reconcile against the canonical orchestrator vocabulary when reachable."
+  }
+}

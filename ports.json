@@ -1,0 +1,18 @@
+{
+  "$comment": "Connection-standard port declaration for this organ's decide(state, context). `inputs` are the keys decide() reads from `state`; `outputs` are the keys it writes under the top-level `output` object. Types map to the vocabulary in types.json. `rationale` and `self_metric` are contract-level envelope fields (every organ returns them) and are NOT ports. `context` carries no declared keys for this organ.",
+  "inputs": [
+    {"name": "check", "type": "string", "required": true},
+    {"name": "schema_id", "type": "string", "required": false},
+    {"name": "schema", "type": "object", "required": false},
+    {"name": "result", "type": "any", "required": false},
+    {"name": "directive_text", "type": "string", "required": false},
+    {"name": "contract", "type": "object", "required": false},
+    {"name": "daily_items_so_far", "type": "integer", "required": false},
+    {"name": "daily_cost_usd_so_far", "type": "number", "required": false},
+    {"name": "concurrent_sessions", "type": "integer", "required": false}
+  ],
+  "outputs": [
+    {"name": "valid", "type": "boolean"},
+    {"name": "error", "type": "object"}
+  ]
+}

@@ -29,6 +29,12 @@ jobs:
           else
             echo "No samples/ directory found" >> "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Check ports.json against organ.py
+        run: |
+          set -euo pipefail
+          echo "## ports.json" >> "$GITHUB_STEP_SUMMARY"
+          out="$(python3 check_ports.py)"
+          printf '```\n%s\n```\n' "$out" >> "$GITHUB_STEP_SUMMARY"
       - name: Run tests
         run: |
           python -m pip install --quiet pytest
