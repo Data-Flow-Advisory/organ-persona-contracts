@@ -1,0 +1,331 @@
+{
+  "_README": "The shared connection-type vocabulary \u2014 the stud sizes. Two organ ports connect iff their `type` matches. Curated deliberately: a new type is added only when no existing one fits (sprawl defeats the standard). Each type pins the shape that flows on that wire. See CONNECTORS.md.",
+  "version": 1,
+  "types": {
+    "TenantContext": {
+      "desc": "A resolved tenant: identity, branding, provenance bag.",
+      "schema": {
+        "tenant_id": "int",
+        "slug": "str",
+        "brand": "object",
+        "provenance": "object"
+      },
+      "produced_by_eg": [
+        "organ-tenant"
+      ],
+      "consumed_by_eg": [
+        "organ-branding",
+        "organ-system-blueprint"
+      ]
+    },
+    "SiteCrawl": {
+      "desc": "Signals crawled from a prospect's website at signup.",
+      "schema": {
+        "url": "str",
+        "industry": "str",
+        "competitors": "array",
+        "palette": "array",
+        "description": "str"
+      },
+      "produced_by_eg": [
+        "organ-site-crawl"
+      ],
+      "consumed_by_eg": [
+        "organ-branding",
+        "organ-tenant"
+      ]
+    },
+    "InterviewTranscript": {
+      "desc": "Ordered Q&A pairs from a discovery interview.",
+      "schema": {
+        "interview_id": "int",
+        "qa": "array<{question:str,answer:str,asked_at:str}>"
+      },
+      "produced_by_eg": [
+        "organ-claude-service"
+      ],
+      "consumed_by_eg": [
+        "organ-fact-extractor",
+        "organ-process-flow"
+      ]
+    },
+    "KeyFacts": {
+      "desc": "Themed facts extracted from a transcript (the discovery memory).",
+      "schema": {
+        "facts": "array<{theme:str,fact:str,evidence:array}>"
+      },
+      "produced_by_eg": [
+        "organ-fact-extractor"
+      ],
+      "consumed_by_eg": [
+        "organ-system-blueprint",
+        "organ-entity-deduplication-service"
+      ]
+    },
+    "EntityGraph": {
+      "desc": "Deduplicated canonical entities (people, systems, tools) per tenant.",
+      "schema": {
+        "entities": "array<{canonical:str,aliases:array,kind:str}>"
+      },
+      "produced_by_eg": [
+        "organ-entity-deduplication-service"
+      ],
+      "consumed_by_eg": [
+        "organ-system-blueprint"
+      ]
+    },
+    "Blueprint": {
+      "desc": "The system blueprint: modules + integrations + current/recommended state.",
+      "schema": {
+        "modules": "array<{name:str,integrations:array,screen_concept:str}>",
+        "integrations": "array<{name:str,purpose:str}>"
+      },
+      "produced_by_eg": [
+        "organ-system-blueprint"
+      ],
+      "consumed_by_eg": [
+        "organ-solutions-engine",
+        "organ-react-flow-blueprint",
+        "organ-pdf-report"
+      ]
+    },
+    "RecommendationList": {
+      "desc": "SaaS + bespoke-build recommendations, competitor-weighted.",
+      "schema": {
+        "recommendations": "array<{name:str,purpose:str,kind:str}>"
+      },
+      "produced_by_eg": [
+        "organ-solutions-engine"
+      ],
+      "consumed_by_eg": [
+        "organ-pdf-report"
+      ]
+    },
+    "ProcessFlow": {
+      "desc": "Sequence / swimlane of a workflow extracted from transcript themes.",
+      "schema": {
+        "steps": "array<{actor:str,action:str,system:str}>"
+      },
+      "produced_by_eg": [
+        "organ-process-flow"
+      ],
+      "consumed_by_eg": [
+        "organ-react-flow-blueprint"
+      ]
+    },
+    "AccountState": {
+      "desc": "A fleet account's pacing/quota state (the pace + drift gates' input).",
+      "schema": {
+        "utilization_pct": "number",
+        "resets_at": "str",
+        "tier_cap_4h": "int"
+      },
+      "produced_by_eg": [
+        "organ-account-health"
+      ],
+      "consumed_by_eg": [
+        "organ-pace-gate",
+        "organ-drift-gate",
+        "organ-burn-pacing"
+      ]
+    },
+    "PendingItems": {
+      "desc": "Work items awaiting prioritisation (APES input).",
+      "schema": {
+        "items": "array<{id:any,atoms:object}>"
+      },
+      "produced_by_eg": [
+        "organ-feed-adapters-github-adapter"
+      ],
+      "consumed_by_eg": [
+        "organ-prioritiser"
+      ]
+    },
+    "RankedItems": {
+      "desc": "APES-ranked items + human-decision / culled buckets.",
+      "schema": {
+        "ranked": "array",
+        "human_decision": "array",
+        "culled": "array"
+      },
+      "produced_by_eg": [
+        "organ-prioritiser"
+      ],
+      "consumed_by_eg": [
+        "organ-queue-admission"
+      ]
+    },
+    "ClaimVerdict": {
+      "desc": "Whether a worker may claim work now, and why (gate output).",
+      "schema": {
+        "allow": "bool",
+        "reason": "str"
+      },
+      "produced_by_eg": [
+        "organ-pace-gate",
+        "organ-drift-gate",
+        "organ-queue-admission"
+      ],
+      "consumed_by_eg": [
+        "organ-claim-router"
+      ]
+    },
+    "BillingState": {
+      "desc": "A tenant's subscription / billing state + feature entitlements.",
+      "schema": {
+        "tier": "str",
+        "status": "str",
+        "features": "array"
+      },
+      "produced_by_eg": [
+        "organ-airwallex-billing",
+        "organ-billing-provider"
+      ],
+      "consumed_by_eg": [
+        "organ-feature-gates"
+      ]
+    },
+    "ConformanceVerdict": {
+      "desc": "Whether an organ/output conforms + groundedness (self_metric shape).",
+      "schema": {
+        "conforms": "bool",
+        "confidence": "number",
+        "reasons": "array"
+      },
+      "produced_by_eg": [
+        "organ-readiness"
+      ],
+      "consumed_by_eg": []
+    },
+    "ApparatusSource": {
+      "desc": "A pointer to something the fresh apparatus should scan for useful specs/features \u2014 the OLD apparatus or any source.",
+      "schema": {
+        "kind": "discovery-engine|notion|github|transcript|docs|rebuild-backlog",
+        "ref": "str"
+      },
+      "produced_by_eg": [],
+      "consumed_by_eg": [
+        "organ-discernment"
+      ]
+    },
+    "RawArtefacts": {
+      "desc": "Raw scanned content from a source, before it is decomposed into discrete features.",
+      "schema": {
+        "items": "array"
+      },
+      "produced_by_eg": [
+        "organ-discernment"
+      ],
+      "consumed_by_eg": [
+        "organ-decompose-to-execute"
+      ]
+    },
+    "CandidateFeatures": {
+      "desc": "Discrete specs/features decomposed out of the raw scan \u2014 the candidates to judge.",
+      "schema": {
+        "features": "array<{title:str,spec:str,source_ref:str}>"
+      },
+      "produced_by_eg": [
+        "organ-decompose-to-execute"
+      ],
+      "consumed_by_eg": [
+        "organ-prioritiser"
+      ]
+    },
+    "JudgedFeatures": {
+      "desc": "Candidates after judgment \u2014 the useful ranked, the useless rejected (reject is first-class).",
+      "schema": {
+        "useful": "array",
+        "rejected": "array"
+      },
+      "produced_by_eg": [
+        "organ-prioritiser"
+      ],
+      "consumed_by_eg": [
+        "organ-readiness"
+      ]
+    },
+    "ProvenancedArtefact": {
+      "desc": "Any spec/feature the scan-and-select takes from the OLD apparatus, wrapped with its origin + succession status so the new machine knows it as inherited, never native. Retain history, know it as such \u2014 succession baked in, the antidote to old-artefacts-polluting-new. See FRESH_APPARATUS.md.",
+      "schema": {
+        "artefact": "object",
+        "provenance": {
+          "source": "str",
+          "origin_ref": "str",
+          "scanned_at": "str"
+        },
+        "succession": {
+          "status": "inherited|validated|native|superseded|retired",
+          "native": "bool"
+        }
+      },
+      "produced_by_eg": [
+        "organ-discernment"
+      ],
+      "consumed_by_eg": [
+        "the-fresh-apparatus-injector"
+      ]
+    },
+    "PersonaContract": {
+      "desc": "A persona's governance contract block: declared non_goals (topics it must refuse) and operational limits (budget/rate caps). The perimeter reads this to gate inbound directives and observed usage.",
+      "schema": {
+        "non_goals": "array",
+        "limits": "object"
+      },
+      "produced_by_eg": [
+        "organ-persona-config"
+      ],
+      "consumed_by_eg": [
+        "organ-persona-contracts"
+      ],
+      "proposed": true
+    },
+    "OutputSchemaSpec": {
+      "desc": "A registered output schema for a /complete result: the required fields and per-field type names a result payload must satisfy. Pre-resolved by the caller (registry lookup) so the validator stays registry-free.",
+      "schema": {
+        "required_fields": "array",
+        "field_types": "object"
+      },
+      "produced_by_eg": [
+        "organ-schema-registry"
+      ],
+      "consumed_by_eg": [
+        "organ-persona-contracts"
+      ],
+      "proposed": true
+    },
+    "WorkResultPayload": {
+      "desc": "A persona work item's /complete result envelope (open shape) submitted for schema validation at the perimeter. Validated against an OutputSchemaSpec; the type itself is intentionally open.",
+      "schema": {},
+      "produced_by_eg": [
+        "organ-persona-work"
+      ],
+      "consumed_by_eg": [
+        "organ-persona-contracts"
+      ],
+      "proposed": true
+    },
+    "ContractVerdict": {
+      "desc": "The persona-perimeter check verdict: whether a result/directive/usage check passes, plus a structured error body when it fails (null when it passes). Sibling of ClaimVerdict/ConformanceVerdict for the governance perimeter.",
+      "schema": {
+        "valid": "bool",
+        "error": "object"
+      },
+      "produced_by_eg": [
+        "organ-persona-contracts"
+      ],
+      "consumed_by_eg": [
+        "organ-claim-router",
+        "organ-persona-work"
+      ],
+      "proposed": true
+    }
+  },
+  "_vendored_from": {
+    "repo": "Data-Flow-Advisory/orchestrator",
+    "ref": "feat/drift-gate",
+    "types_json_blob_sha": "97479ad75a21682da5769efca2f03f445740e1dc",
+    "branch_head_sha": "abd82a95f9f12731d1dabd6354917a2b761216a8",
+    "note": "Seed vocabulary vendored verbatim for offline conformance; types with proposed=true are new and under review (see PR)."
+  }
+}
